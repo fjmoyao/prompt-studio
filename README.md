@@ -5,7 +5,7 @@ Herramienta interactiva de apoyo para **Prompting Avanzado**. Replica el patrón
 ## Qué practica
 
 La experiencia tiene ocho misiones:
-
+.
 1. Completar una estructura profesional.
 2. Elegir cuándo usar few-shot.
 3. Hacer explícito el criterio de análisis.
