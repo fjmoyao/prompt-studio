@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1E1E1E">
+  <title>Prompt Studio · Tablero docente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yellow: #F2D94E;
+      --cream: #F5EEBB;
+      --ink: #1E1E1E;
+      --paper: #F8F6EF;
+      --white: #FFFFFF;
+      --muted: #6B6860;
+      --line: rgba(30, 30, 30, .16);
+      --purple: #6B3FA0;
+      --purple-pale: #F3EEFE;
+      --cyan: #00A6D6;
+      --green: #167A52;
+      --red: #A83B3B;
+      --orange: #D97724;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Barlow", sans-serif;
+    }
+    button, a { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 4px solid var(--cyan); outline-offset: 3px; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      padding: 16px clamp(20px, 3vw, 46px);
+      color: var(--white);
+      background: var(--ink);
+      border-bottom: 7px solid var(--yellow);
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      background: var(--yellow);
+      color: var(--ink);
+      border-radius: 50%;
+      font-family: "Barlow Condensed", sans-serif;
+      font-weight: 800;
+    }
+    .brand h1 { margin: 0; font-size: 19px; line-height: 1; }
+    .brand p { margin: 5px 0 0; color: rgba(255,255,255,.64); font-size: 12px; }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .live {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      color: var(--yellow);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .live-dot { width: 8px; height: 8px; background: var(--yellow); border-radius: 50%; animation: pulse 1.7s infinite; }
+    .reset {
+      padding: 8px 12px;
+      color: var(--white);
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.32);
+      border-radius: 7px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .reset:hover { background: var(--red); border-color: var(--red); }
+
+    main { width: min(1500px, calc(100% - 34px)); margin: 0 auto; padding: 24px 0 60px; }
+    .status-line { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 15px; color: var(--muted); font-size: 12px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat {
+      position: relative;
+      overflow: hidden;
+      padding: 17px;
+      background: var(--white);
+      border: 1.5px solid var(--ink);
+      border-radius: var(--radius);
+    }
+    .stat::after {
+      content: "";
+      position: absolute;
+      right: -22px;
+      bottom: -24px;
+      width: 65px;
+      height: 65px;
+      background: var(--cream);
+      border: 1px solid var(--ink);
+      transform: rotate(45deg);
+    }
+    .stat-label { position: relative; z-index: 1; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .stat-value {
+      position: relative;
+      z-index: 1;
+      margin-top: 6px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(34px, 4vw, 48px);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: .9;
+    }
+    .stat-detail { position: relative; z-index: 1; margin-top: 7px; color: var(--muted); font-size: 11px; }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(330px, .72fr) minmax(560px, 1.28fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .card {
+      background: var(--white);
+      border: 1.5px solid var(--ink);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      min-height: 48px;
+      padding: 12px 16px;
+      background: var(--yellow);
+      border-bottom: 1.5px solid var(--ink);
+    }
+    .card-header h2 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: .07em; }
+    .card-header span { font-size: 11px; color: rgba(30,30,30,.65); }
+    .card-body { padding: 16px; }
+
+    .competency-row { display: grid; grid-template-columns: 150px 1fr 38px; gap: 11px; align-items: center; margin: 14px 0; }
+    .competency-row > span { font-size: 12px; font-weight: 700; }
+    .bar-track { height: 13px; overflow: hidden; background: #E8E5DB; border: 1px solid var(--ink); border-radius: 999px; }
+    .bar-fill { width: 0; height: 100%; background: var(--purple); transition: width .45s ease; }
+    .competency-row:nth-child(2) .bar-fill { background: var(--cyan); }
+    .competency-row:nth-child(3) .bar-fill { background: var(--orange); }
+    .competency-row:nth-child(4) .bar-fill { background: var(--green); }
+    .competency-row:nth-child(5) .bar-fill { background: var(--red); }
+
+    .mission-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .mission {
+      display: grid;
+      grid-template-columns: 35px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 66px;
+      padding: 10px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+    .mission-num {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      background: var(--ink);
+      color: var(--yellow);
+      border-radius: 50%;
+      font-family: "Barlow Condensed", sans-serif;
+      font-weight: 800;
+    }
+    .mission strong { display: block; font-size: 12px; }
+    .mission small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .mission-pct { font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 800; }
+
+    .table-card { grid-column: 1 / -1; }
+    .table-wrap { overflow: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 10px 12px;
+      text-align: left;
+      background: var(--ink);
+      color: var(--white);
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    tbody tr:hover { background: #FFFBE4; }
+    .student-name { font-weight: 800; }
+    .status {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .status.done { color: var(--green); background: #E1F5EE; }
+    .status.active { color: var(--orange); background: #FFF2DF; }
+    .score {
+      display: inline-flex;
+      min-width: 48px;
+      justify-content: center;
+      padding: 5px 8px;
+      color: var(--white);
+      background: var(--green);
+      border-radius: 6px;
+      font-weight: 800;
+    }
+    .score.mid { background: var(--orange); }
+    .score.low { background: var(--red); }
+    .mission-dots { display: flex; gap: 4px; }
+    .dot { width: 10px; height: 10px; background: #D9D6CD; border-radius: 50%; }
+    .dot.good { background: var(--green); }
+    .dot.mid { background: var(--orange); }
+    .dot.low { background: var(--red); }
+    .empty {
+      display: grid;
+      min-height: 220px;
+      place-items: center;
+      padding: 30px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .empty strong { display: block; margin-bottom: 7px; color: var(--ink); font-size: 18px; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: rgba(30,30,30,.65);
+    }
+    .overlay[hidden] { display: none; }
+    .dialog {
+      width: min(460px, 100%);
+      padding: 28px;
+      background: var(--white);
+      border: 3px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: 7px 7px 0 var(--yellow);
+    }
+    .dialog h2 { margin: 0 0 9px; font-size: 24px; }
+    .dialog p { color: var(--muted); line-height: 1.5; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; }
+    .dialog button { padding: 9px 13px; border: 1.5px solid var(--ink); border-radius: 7px; font-weight: 800; cursor: pointer; }
+    .cancel { background: var(--white); }
+    .confirm { color: var(--white); background: var(--red); }
+
+    @keyframes pulse { 50% { opacity: .35; transform: scale(.82); } }
+
+    @media (max-width: 1050px) {
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .table-card { grid-column: auto; }
+    }
+    @media (max-width: 680px) {
+      header { align-items: flex-start; flex-direction: column; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .mission-grid { grid-template-columns: 1fr; }
+      .competency-row { grid-template-columns: 118px 1fr 36px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="mark">P2</div>
+      <div>
+        <h1>Prompt Studio · Tablero docente</h1>
+        <p>Clase 2 · decisiones de prompting avanzado</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="live"><span class="live-dot"></span> En vivo</span>
+      <button class="reset" id="reset-button" type="button">Reiniciar sesión</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="status-line">
+      <span id="connection-status">Conectando con los resultados…</span>
+      <span id="last-update">—</span>
+    </div>
+
+    <section class="stats" aria-label="Resumen de la clase">
+      <article class="stat">
+        <div class="stat-label">Participantes</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-detail">iniciaron el laboratorio</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">En progreso</div>
+        <div class="stat-value" id="stat-active">0</div>
+        <div class="stat-detail">trabajando ahora</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">Completaron</div>
+        <div class="stat-value" id="stat-completed">0</div>
+        <div class="stat-detail">ocho misiones</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">Promedio</div>
+        <div class="stat-value" id="stat-average">—</div>
+        <div class="stat-detail">entre quienes terminaron</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">Tiempo promedio</div>
+        <div class="stat-value" id="stat-time">—</div>
+        <div class="stat-detail">minutos</div>
+      </article>
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="card">
+        <div class="card-header">
+          <h2>Mapa de habilidades</h2>
+          <span>promedio del grupo</span>
+        </div>
+        <div class="card-body" id="competency-bars"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Precisión por misión</h2>
+          <span>úsalo para el debrief</span>
+        </div>
+        <div class="card-body">
+          <div class="mission-grid" id="mission-grid"></div>
+        </div>
+      </section>
+
+      <section class="card table-card">
+        <div class="card-header">
+          <h2>Participación en tiempo real</h2>
+          <span id="table-count">0 registros</span>
+        </div>
+        <div id="empty-state" class="empty">
+          <div><strong>Aún no entra nadie al estudio</strong>Comparte el enlace de estudiante. Los nombres aparecerán al comenzar.</div>
+        </div>
+        <div class="table-wrap" id="table-wrap" hidden>
+          <table>
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>Estado</th>
+                <th>Progreso</th>
+                <th>Puntaje</th>
+                <th>Misiones</th>
+                <th>Tiempo</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="overlay" id="reset-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-title" hidden>
+    <div class="dialog">
+      <h2 id="reset-title">¿Reiniciar la sesión?</h2>
+      <p>Se eliminarán del tablero todos los resultados de Prompt Studio de Clase 2. Esta acción no afecta el Prompt Lab de Clase 1.</p>
+      <div class="dialog-actions">
+        <button class="cancel" id="cancel-reset" type="button">Cancelar</button>
+        <button class="confirm" id="confirm-reset" type="button">Sí, borrar resultados</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script>
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyBE_yXYRh5dVF8I4XU4cFw82chXNVgfmkI",
+      authDomain: "prompt-lab-538ea.firebaseapp.com",
+      databaseURL: "https://prompt-lab-538ea-default-rtdb.firebaseio.com",
+      projectId: "prompt-lab-538ea",
+      storageBucket: "prompt-lab-538ea.firebasestorage.app",
+      messagingSenderId: "624561550831",
+      appId: "1:624561550831:web:3b2729c8c12fefea73370a"
+    };
+    const RESULTS_PATH = "prompt_studio_clase2";
+    const COMPETENCIES = {
+      estructura: "Estructura profesional",
+      tecnica: "Selección de técnica",
+      chaining: "Prompt chaining",
+      organizacion: "Organización y control",
+      evaluacion: "Evaluación crítica"
+    };
+    const MISSION_TITLES = [
+      "Cierra las brechas",
+      "Elige la herramienta",
+      "Haz visible el criterio",
+      "Arma la cadena",
+      "Enseña con ejemplos",
+      "Separa para controlar",
+      "Itera con precisión",
+      "Activa el filtro humano"
+    ];
+
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const database = firebase.database();
+    const resultsRef = database.ref(RESULTS_PATH);
+    let latestResults = [];
+
+    const escapeHtml = (value) => String(value ?? "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+
+    function scoreClass(pct) {
+      return pct >= 80 ? "" : pct >= 60 ? "mid" : "low";
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.max(1, Math.round((Number(seconds) || 0) / 60));
+      return `${mins} min`;
+    }
+
+    function average(values) {
+      return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null;
+    }
+
+    function renderCompetencies(results) {
+      const container = document.getElementById("competency-bars");
+      container.innerHTML = Object.entries(COMPETENCIES).map(([key, label]) => {
+        const values = results.flatMap((result) =>
+          (result.scores || []).filter((score) => score.competency === key).map((score) => Number(score.pct) || 0)
+        );
+        const pct = average(values);
+        return `
+          <div class="competency-row">
+            <span>${label}</span>
+            <div class="bar-track" aria-label="${label}: ${pct ?? 0}%">
+              <div class="bar-fill" style="width:${pct ?? 0}%"></div>
+            </div>
+            <span>${pct === null ? "—" : `${pct}%`}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderMissions(results) {
+      const container = document.getElementById("mission-grid");
+      container.innerHTML = MISSION_TITLES.map((title, index) => {
+        const values = results.flatMap((result) =>
+          (result.scores || []).filter((score) => Number(score.missionId) === index + 1).map((score) => Number(score.pct) || 0)
+        );
+        const pct = average(values);
+        return `
+          <article class="mission">
+            <span class="mission-num">${index + 1}</span>
+            <span><strong>${title}</strong><small>${values.length} respuestas</small></span>
+            <span class="mission-pct">${pct === null ? "—" : `${pct}%`}</span>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderTable(results) {
+      const body = document.getElementById("results-body");
+      const tableWrap = document.getElementById("table-wrap");
+      const emptyState = document.getElementById("empty-state");
+      document.getElementById("table-count").textContent = `${results.length} ${results.length === 1 ? "registro" : "registros"}`;
+      emptyState.hidden = results.length > 0;
+      tableWrap.hidden = results.length === 0;
+
+      body.innerHTML = [...results]
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+        .map((result) => {
+          const scores = result.scores || [];
+          const dots = Array.from({ length: 8 }, (_, index) => {
+            const score = scores.find((item) => Number(item.missionId) === index + 1);
+            if (!score) return '<span class="dot" title="Pendiente"></span>';
+            const cls = score.pct >= 80 ? "good" : score.pct >= 50 ? "mid" : "low";
+            return `<span class="dot ${cls}" title="Misión ${index + 1}: ${score.pct}%"></span>`;
+          }).join("");
+          const completed = result.status === "completed";
+          return `
+            <tr>
+              <td class="student-name">${escapeHtml(result.name)}</td>
+              <td><span class="status ${completed ? "done" : "active"}">${completed ? "Completó" : "En progreso"}</span></td>
+              <td>${Number(result.completedMissions) || 0} / 8</td>
+              <td><span class="score ${scoreClass(Number(result.average) || 0)}">${Number(result.average) || 0}%</span></td>
+              <td><div class="mission-dots">${dots}</div></td>
+              <td>${formatTime(result.elapsedSeconds)}</td>
+            </tr>
+          `;
+        }).join("");
+    }
+
+    function render(results) {
+      latestResults = results;
+      const completed = results.filter((result) => result.status === "completed");
+      const active = results.filter((result) => result.status !== "completed");
+      const classAverage = average(completed.map((result) => Number(result.average) || 0));
+      const avgTime = completed.length
+        ? Math.max(1, Math.round(completed.reduce((sum, result) => sum + (Number(result.elapsedSeconds) || 0), 0) / completed.length / 60))
+        : null;
+
+      document.getElementById("stat-total").textContent = results.length;
+      document.getElementById("stat-active").textContent = active.length;
+      document.getElementById("stat-completed").textContent = completed.length;
+      document.getElementById("stat-average").textContent = classAverage === null ? "—" : `${classAverage}%`;
+      document.getElementById("stat-time").textContent = avgTime === null ? "—" : avgTime;
+      document.getElementById("last-update").textContent = `Última actualización: ${new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+
+      renderCompetencies(results);
+      renderMissions(results);
+      renderTable(results);
+    }
+
+    resultsRef.on("value", (snapshot) => {
+      const data = snapshot.val() || {};
+      document.getElementById("connection-status").textContent = "● Conectado a Firebase";
+      render(Object.values(data));
+    }, (error) => {
+      document.getElementById("connection-status").textContent = "No se pudo leer Firebase. Revisa conexión y reglas.";
+      console.error(error);
+    });
+
+    document.getElementById("reset-button").addEventListener("click", () => {
+      document.getElementById("reset-dialog").hidden = false;
+      document.getElementById("cancel-reset").focus();
+    });
+    document.getElementById("cancel-reset").addEventListener("click", () => {
+      document.getElementById("reset-dialog").hidden = true;
+    });
+    document.getElementById("confirm-reset").addEventListener("click", async () => {
+      try {
+        await resultsRef.remove();
+        document.getElementById("reset-dialog").hidden = true;
+      } catch (error) {
+        window.alert("No se pudieron borrar los resultados. Revisa la conexión y las reglas de Firebase.");
+        console.error(error);
+      }
+    });
+
+    renderCompetencies([]);
+    renderMissions([]);
+  </script>
+</body>
+</html>
