@@ -3,6 +3,9 @@
 Herramienta interactiva de apoyo para **Prompting Avanzado**. Replica el patrón pedagógico de `ayudas-tecnicas/prompt-lab/` —práctica individual más tablero docente— sin repetir el ejercicio de etiquetar Acción, Contexto y Modificadores.
 
 ## Qué practica
+link profesor: https://fjmoyao.github.io/prompt-studio/profesor.html
+
+link estudiante: https://fjmoyao.github.io/prompt-studio/estudiante.html
 
 La experiencia tiene ocho misiones:
 .
